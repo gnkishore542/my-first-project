@@ -1,0 +1,40 @@
+from flask import Flask, jsonify
+import random
+
+app = Flask(__name__)
+
+# --- Simulated Sensor Data ---
+def get_sensor_data():
+    return {
+        "heart_rate": random.randint(60, 120),
+        "oxygen_level": random.randint(90, 100),
+        "temperature": round(random.uniform(36.0, 38.5), 1)
+    }
+
+# --- Basic Analysis Logic ---
+def analyze_data(data):
+    alerts = []
+    if data["heart_rate"] > 100:
+        alerts.append("High heart rate detected")
+    if data["oxygen_level"] < 95:
+        alerts.append("Low oxygen level detected")
+    if data["temperature"] > 37.5:
+        alerts.append("Possible fever detected")
+
+    return {
+        "status": "Critical" if alerts else "Normal",
+        "alerts": alerts
+    }
+
+# --- Flask API Endpoint ---
+@app.route("/health", methods=["GET"])
+def health_status():
+    data = get_sensor_data()
+    analysis = analyze_data(data)
+    return jsonify({
+        "sensor_data": data,
+        "analysis": analysis
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
